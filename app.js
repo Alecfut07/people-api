@@ -67,3 +67,77 @@ app.delete('/people/:id', (req, res) => {
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })
+
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'Ortegaalec00',
+    database: 'ortega_cruz-pharmacy'
+});
+
+connection.connect();
+
+app.get('/products', (req, res) => {
+    connection.query('SELECT * FROM products', function (error, results, fields) {
+        if (error) throw error;
+        res.json(results)
+        //console.log(results[0]);
+        //console.log(results[0].nombreProducto);
+    });
+})
+
+app.get('/products/:id', (req, res) => {
+    var id = parseInt(req.params.id, 10)
+    // connection.query('SELECT * FROM products WHERE idProducto = ' + id)
+    connection.query(`SELECT * FROM products WHERE idProducto = ${id}`, function (error, results, fields) {
+        if (error) throw error;
+        res.json(results)
+    });
+})
+
+app.post('/products', (req, res) => {
+    connection.query(
+        `
+                    INSERT INTO products(idProducto, nombreProducto, detallesProducto, stock, idCategoria, precio, stockMax, stockMin)
+                    VALUES (${req.body.idProducto}, '${req.body.nombreProducto}', 'Para tratar infecciones bacterianas.', 100, 1, 35.00, 100, 20)
+                    `,
+        function (error, results, fields) {
+            if (error) res.status(500).end();
+            res.status(200).end()
+        });
+    //console.log(req.body.nombreProducto)
+    res.end()
+})
+
+app.put('/products/:id', (req, res) => {
+    var id = parseInt(req.params.id, 10)
+    var productToUpdate = req.body;
+
+    //console.log(productToUpdate);
+    connection.query(
+        `
+            UPDATE products set nombreProducto = '${productToUpdate.nombreProducto}', 
+            detallesProducto = '${productToUpdate.detallesProducto}' WHERE idProducto = ${id}
+        `,
+        function (error, results, fields) {
+            if (error) res.status(500).end();
+            res.status(200).end()
+        });
+    res.end()
+})
+
+app.delete('/products/:id', (req, res) => {
+    var id = parseInt(req.params.id, 10)
+    connection.query(
+        `
+            DELETE FROM products WHERE idProducto = ${id}
+        `,
+        function (error, results, fields) {
+            if (error) res.status(500).end();
+            res.status(200).end()
+        });
+    res.end()
+})
+
+//connection.end();
