@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+    api:
+        build: .
+        container_name: api
+        environment:
+            DB_HOST: db
+            DB_USER: $DB_USER
+            DB_PASSWORD: $DB_PASSWORD
+            DB_NAME: ortega_cruz-pharmacy
+        depends_on:
+            - db
+        ports:
+            - "3000:3000"
+        networks:
+            - pharmacy-network
+    db:
+        image: mysql
+        container_name: db
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+            MYSQL_DATABASE: ortega_cruz-pharmacy
+            MYSQL_USER: $DB_USER
+            MYSQL_PASSWORD: $DB_PASSWORD
+        networks:
+            - pharmacy-network
+        volumes:
+            - pharmacy-volume:/data/db
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+          - 8080:8080
+        networks:
+          - pharmacy-network
+
+networks:
+    pharmacy-network:
+        driver: bridge
+
+volumes:
+  pharmacy-volume:
