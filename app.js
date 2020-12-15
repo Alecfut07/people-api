@@ -79,9 +79,38 @@ var connection = mysql.createConnection({
 connection.connect();
 
 app.get('/products', (req, res) => {
-    connection.query('SELECT * FROM products', function (error, results, fields) {
-        if (error) throw error;
-        res.json(results)
+    connection.query('SELECT * FROM products INNER JOIN category on products.idCategoria = category.idCategoria', function (error, results, fields) {
+        if (error) {
+            res.status(500).json({
+                data: [],
+                errors: [{
+                    code: 500
+                }]
+            })
+        }
+        var products = [];
+        for (var row of results) {
+            var product = {
+                id: row.idProducto,
+                name: row.nombreProducto,
+                detail: row.detallesProducto,
+                category: {
+                    id: row.idCategoria,
+                    name: row.nombreCategoria
+                },
+                info_stock: {
+                    stock: row.stock,
+                    stock_min: row.stockMin,
+                    stock_max: row.stockMax
+                },
+                precio: row.precio
+            }
+            products.push(product);
+        }
+        res.json({
+            data: products,
+            errors: []
+        })
         //console.log(results[0]);
         //console.log(results[0].nombreProducto);
     });
@@ -90,24 +119,86 @@ app.get('/products', (req, res) => {
 app.get('/products/:id', (req, res) => {
     var id = parseInt(req.params.id, 10)
     // connection.query('SELECT * FROM products WHERE idProducto = ' + id)
-    connection.query(`SELECT * FROM products WHERE idProducto = ${id}`, function (error, results, fields) {
-        if (error) throw error;
-        res.json(results)
+    var query = `SELECT * FROM products WHERE idProducto = ${id}`
+    connection.query(query, function (error, results, fields) {
+        if (error) {
+            var body = {
+                data: [],
+                errors: [{
+                    code: 500,
+                    message: "Internal server error"
+                }]
+            }
+            res.status(500).json(body)
+        } else if (results.length > 0) {
+            var row = results[0]
+            var product = {
+                id: row.idProducto,
+                name: row.nombreProducto,
+                detail: row.detallesProducto,
+                category: {
+                    id: row.idCategoria,
+                    name: row.nombreCategoria
+                },
+                info_stock: {
+                    stock: row.stock,
+                    stock_min: row.stockMin,
+                    stock_max: row.stockMax
+                },
+                precio: row.precio
+            }
+            res.json({
+                data: product,
+                errors: []
+            })
+        } else {
+            res.json({
+                data: [],
+                errors: []
+            })
+        }
     });
 })
 
 app.post('/products', (req, res) => {
     connection.query(
         `
-                    INSERT INTO products(idProducto, nombreProducto, detallesProducto, stock, idCategoria, precio, stockMax, stockMin)
-                    VALUES (${req.body.idProducto}, '${req.body.nombreProducto}', 'Para tratar infecciones bacterianas.', 100, 1, 35.00, 100, 20)
-                    `,
+            INSERT INTO products(idProducto, nombreProducto, detallesProducto, stock, idCategoria, precio, stockMax, stockMin)
+            VALUES (${req.body.idProducto}, '${req.body.nombreProducto}', '${req.body.detallesProducto}', ${req.body.stock}, 
+            1, ${req.body.precio}, ${req.body.stockMax}, ${req.body.stockMin})
+        `,
         function (error, results, fields) {
-            if (error) res.status(500).end();
-            res.status(200).end()
+            if (error) {
+                var body = {
+                    data: [],
+                    errors: [{
+                        code: 500,
+                        message: "Internal server error"
+                    }]
+                }
+                res.status(500).json(body)
+            }
+            var row = req.body
+            res.status(201).json({
+                data: {
+                    id: row.idProducto,
+                    name: row.nombreProducto,
+                    detail: row.detallesProducto,
+                    category: {
+                        id: row.idCategoria,
+                        name: row.nombreCategoria
+                    },
+                    info_stock: {
+                        stock: row.stock,
+                        stock_min: row.stockMin,
+                        stock_max: row.stockMax
+                    },
+                    precio: row.precio
+                },
+                errors: []
+            })
         });
     //console.log(req.body.nombreProducto)
-    res.end()
 })
 
 app.put('/products/:id', (req, res) => {
@@ -121,10 +212,60 @@ app.put('/products/:id', (req, res) => {
             detallesProducto = '${productToUpdate.detallesProducto}' WHERE idProducto = ${id}
         `,
         function (error, results, fields) {
-            if (error) res.status(500).end();
-            res.status(200).end()
+            if (error) {
+                var body = {
+                    data: [],
+                    errors: [{
+                        code: 500,
+                        message: "Internal server error"
+                    }]
+                }
+                res.status(500).json(body)
+            }
+
+            connection.query(
+                `
+                SELECT * FROM products WHERE idProducto = ${id}
+                `,
+                function (error, results, fields) {
+                    if (error) {
+                        var body = {
+                            data: [],
+                            errors: [{
+                                code: 500,
+                                message: "Internal server error"
+                            }]
+                        }
+                        res.status(500).json(body)
+                    } else if (results.length > 0) {
+                        var row = results[0]
+                        res.status(200).json({
+                            data: {
+                                id: row.idProducto,
+                                name: row.nombreProducto,
+                                detail: row.detallesProducto,
+                                category: {
+                                    id: row.idCategoria,
+                                    name: row.nombreCategoria
+                                },
+                                info_stock: {
+                                    stock: row.stock,
+                                    stock_min: row.stockMin,
+                                    stock_max: row.stockMax
+                                },
+                                precio: row.precio
+                            },
+                            errors: []
+                        })
+                    } else {
+                        res.json({
+                            data: [],
+                            errors: []
+                        })
+                    }
+                }
+            )
         });
-    res.end()
 })
 
 app.delete('/products/:id', (req, res) => {
@@ -134,10 +275,18 @@ app.delete('/products/:id', (req, res) => {
             DELETE FROM products WHERE idProducto = ${id}
         `,
         function (error, results, fields) {
-            if (error) res.status(500).end();
-            res.status(200).end()
+            if (error) {
+                var body = {
+                    data: [],
+                    errors: [{
+                        code: 500,
+                        message: "Internal server error"
+                    }]
+                }
+                res.status(500).json(body)
+            }
+            res.status(204).end()
         });
-    res.end()
 })
 
 //connection.end();
