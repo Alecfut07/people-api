@@ -20,7 +20,7 @@ function Categories(connection, app) {
                     for (var row of results) {
                         var category = {
                             id: row.id,
-                            category_name: row.name
+                            name: row.name
                         }
                         categories.push(category)
                     }

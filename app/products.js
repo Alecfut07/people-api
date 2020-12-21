@@ -21,7 +21,7 @@ function Products(connection, app) {
                         var product = {
                             id: row.id,
                             name: row.name,
-                            detail: row.details,
+                            details: row.details,
                             category: {
                                 id: row.category_id,
                                 name: row.category_name
@@ -65,7 +65,7 @@ function Products(connection, app) {
                 var product = {
                     id: row.id,
                     name: row.name,
-                    detail: row.details,
+                    details: row.details,
                     category: {
                         id: row.category_id,
                         name: row.name
@@ -114,7 +114,7 @@ function Products(connection, app) {
                         data: {
                             id: results.insertId,
                             name: row.name,
-                            detail: row.details,
+                            details: row.details,
                             category_id: row.category_id,
                             info_stock: {
                                 stock: row.stock,
@@ -137,8 +137,9 @@ function Products(connection, app) {
         console.log(productToUpdate);
         connection.query(
             `
-                UPDATE products set name = '${productToUpdate.name}', 
-                details = '${productToUpdate.details}' WHERE id = ${id}
+                UPDATE products
+                SET name = '${productToUpdate.name}', details = '${productToUpdate.details}', category_id = ${productToUpdate.category_id}, price = '${productToUpdate.price}'
+                WHERE id = ${id}
             `,
             function (error, results, fields) {
                 if (error) {
@@ -175,7 +176,7 @@ function Products(connection, app) {
                                     data: {
                                         id: row.id,
                                         name: row.name,
-                                        detail: row.details,
+                                        details: row.details,
                                         category: {
                                             id: row.category_id,
                                             name: row.category_name
