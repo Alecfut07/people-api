@@ -93,7 +93,33 @@ function Products(connection, app) {
         });
     })
 
+    function isProductNameValid(name) {
+        return name && name.length > 0;
+    }
+
+    function isProductDetailsValid(details) {
+        return details && details.length > 0;
+    }
+
+    function isProductValid(product) {
+        return isProductNameValid(product.name) &&
+            isProductDetailsValid(product.details);
+    }
+
     app.post('/products', (req, res) => {
+        if (!isProductValid(req.body)) {
+            var body = {
+                data: [],
+                errors: [{
+                    code: 400,
+                    message: "BAD REQUEST ERROR"
+                }]
+            }
+            res.status(400).json(body);
+            return;
+        }
+
+
         connection.query(
             `
             INSERT INTO products(name, details, stock, category_id, price, stock_max, stock_min)
