@@ -48,7 +48,10 @@ function Products(connection, app) {
     app.get('/products/:id', (req, res) => {
         var id = parseInt(req.params.id, 10)
         // connection.query('SELECT * FROM products WHERE idProducto = ' + id)
-        var query = `SELECT * FROM products WHERE id = ${id}`
+        var query = `
+            SELECT p.*, c.id as category_id, c.name as category_name
+            FROM products p INNER JOIN categories c ON p.category_id = c.id
+            WHERE p.id = ${id}`
         connection.query(query, function (error, results, fields) {
             if (error) {
                 console.log(error);
@@ -68,7 +71,7 @@ function Products(connection, app) {
                     details: row.details,
                     category: {
                         id: row.category_id,
-                        name: row.name
+                        name: row.category_name
                     },
                     info_stock: {
                         stock: row.stock,
