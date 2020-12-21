@@ -96,9 +96,9 @@ function Products(connection, app) {
     app.post('/products', (req, res) => {
         connection.query(
             `
-                INSERT INTO products(name, details, stock, category_id, price, stock_max, stock_min)
-                VALUES ('${req.body.name}', '${req.body.details}', ${req.body.stock}, 
-                ${req.body.category_id}, ${req.body.price}, ${req.body.stock_max}, ${req.body.stock_min})
+            INSERT INTO products(name, details, stock, category_id, price, stock_max, stock_min)
+            VALUES ('${req.body.name}', '${req.body.details}', ${req.body.stock}, 
+            ${req.body.category_id}, ${req.body.price}, ${req.body.stock_max}, ${req.body.stock_min})
             `,
             function (error, results, fields) {
                 if (error) {
