@@ -1,3 +1,9 @@
+var ApiError = require('./models/api-error');
+var ApiBody = require('./models/api-body');
+var Category = require('./models/category');
+var InfoStock = require('./models/info-stock');
+var Product = require('./models/product');
+
 function Products(connection, app) {
     app.get('/products', (req, res) => {
         connection.query(
@@ -8,37 +14,19 @@ function Products(connection, app) {
             function (error, results, fields) {
                 if (error) {
                     console.log(error);
-                    res.status(500).json({
-                        data: [],
-                        errors: [{
-                            code: 500,
-                            message: "INTERNAL SERVER ERROR"
-                        }]
-                    })
+                    var error = new ApiError(500, 'INTERNAL SERVER ERROR');
+                    var body = new ApiBody([], [error])
+                    res.status(500).json(body)
                 } else {
                     var products = [];
                     for (var row of results) {
-                        var product = {
-                            id: row.id,
-                            name: row.name,
-                            details: row.details,
-                            category: {
-                                id: row.category_id,
-                                name: row.category_name
-                            },
-                            info_stock: {
-                                stock: row.stock,
-                                stock_min: row.stock_min,
-                                stock_max: row.stock_max
-                            },
-                            price: row.price
-                        }
+                        var category = new Category(row.category_id, row.category_name);
+                        var infoStock = new InfoStock(row.stock, row.stock_min, row.stock_max);
+                        var product = new Product(row.id, row.name, row.details, category, infoStock, row.price)
                         products.push(product);
                     }
-                    res.json({
-                        data: products,
-                        errors: []
-                    })
+                    var body = new ApiBody(products)
+                    res.json(body)
                 }
                 //console.log(results[0]);
                 //console.log(results[0].nombreProducto);
@@ -57,33 +45,18 @@ function Products(connection, app) {
                 console.log(error);
                 var body = {
                     data: [],
-                    errors: [{
-                        code: 500,
-                        message: "INTERNAL SERVER ERROR"
-                    }]
+                    errors: [
+                        new ApiError(500, 'INTERNAL SERVER ERROR')
+                    ]
                 }
                 res.status(500).json(body)
             } else if (results.length > 0) {
                 var row = results[0]
-                var product = {
-                    id: row.id,
-                    name: row.name,
-                    details: row.details,
-                    category: {
-                        id: row.category_id,
-                        name: row.category_name
-                    },
-                    info_stock: {
-                        stock: row.stock,
-                        stock_min: row.stock_min,
-                        stock_max: row.stock_max
-                    },
-                    price: row.price
-                }
-                res.json({
-                    data: product,
-                    errors: []
-                })
+                var infoStock = new InfoStock(row.stock, row.stock_min, row.stock_max)
+                var category = new Category(row.category_id, row.category_name)
+                var product = new Product(row.id, row.name, row.details, category, infoStock, row.price)
+                var body = new ApiBody(product)
+                res.json(body)
             } else {
                 res.json({
                     data: [],
