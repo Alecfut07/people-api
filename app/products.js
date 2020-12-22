@@ -43,13 +43,9 @@ function Products(connection, app) {
         connection.query(query, function (error, results, fields) {
             if (error) {
                 console.log(error);
-                var body = {
-                    data: [],
-                    errors: [
-                        new ApiError(500, 'INTERNAL SERVER ERROR')
-                    ]
-                }
-                res.status(500).json(body)
+                var error = new ApiError(500, "INTERNAL SERVER ERROR");
+                var body = new ApiBody([], [error]);
+                res.status(500).json(body);
             } else if (results.length > 0) {
                 var row = results[0]
                 var infoStock = new InfoStock(row.stock, row.stock_min, row.stock_max)
@@ -58,10 +54,8 @@ function Products(connection, app) {
                 var body = new ApiBody(product)
                 res.json(body)
             } else {
-                res.json({
-                    data: [],
-                    errors: []
-                })
+                var body = new ApiBody([], [])
+                res.json(body)
             }
         });
     })
@@ -81,18 +75,11 @@ function Products(connection, app) {
 
     app.post('/products', (req, res) => {
         if (!isProductValid(req.body)) {
-            var body = {
-                data: [],
-                errors: [{
-                    code: 400,
-                    message: "BAD REQUEST ERROR"
-                }]
-            }
+            var error = new ApiError(400, "BAD REQUEST ERROR")
+            var body = new ApiBody([], [error])
             res.status(400).json(body);
             return;
         }
-
-
         connection.query(
             `
             INSERT INTO products(name, details, stock, category_id, price, stock_max, stock_min)
@@ -101,32 +88,17 @@ function Products(connection, app) {
             `,
             function (error, results, fields) {
                 if (error) {
-                    var body = {
-                        data: [],
-                        errors: [{
-                            code: 500,
-                            message: "INTERNAL SERVER ERROR"
-                        }]
-                    }
+                    console.log(error)
+                    var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                    var body = new ApiBody([], [error])
                     res.status(500).json(body)
-                    console.log(error);
                 } else {
                     var row = req.body
-                    res.status(201).json({
-                        data: {
-                            id: results.insertId,
-                            name: row.name,
-                            details: row.details,
-                            category_id: row.category_id,
-                            info_stock: {
-                                stock: row.stock,
-                                stock_min: row.stock_min,
-                                stock_max: row.stock_max
-                            },
-                            price: row.price
-                        },
-                        errors: []
-                    })
+                    var infoStock = new InfoStock(row.stock, row.stock_min, row.stock_max)
+                    var category = new Category(row.category_id, row.category_name)
+                    var product = new Product(row.id, row.name, row.details, category, infoStock, row.price)
+                    var body = new ApiBody(product)
+                    res.status(201).json(body)
                 }
             });
         //console.log(req.body.nombreProducto)
@@ -145,15 +117,10 @@ function Products(connection, app) {
             `,
             function (error, results, fields) {
                 if (error) {
-                    var body = {
-                        data: [],
-                        errors: [{
-                            code: 500,
-                            message: "INTERNAL SERVER ERROR"
-                        }]
-                    }
+                    console.log(error)
+                    var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                    var body = new ApiBody([], [error])
                     res.status(500).json(body)
-                    console.log(error);
                 } else {
                     connection.query(
                         `
@@ -163,40 +130,20 @@ function Products(connection, app) {
                         `,
                         function (error, results, fields) {
                             if (error) {
-                                var body = {
-                                    data: [],
-                                    errors: [{
-                                        code: 500,
-                                        message: "INTERNAL SERVER ERROR"
-                                    }]
-                                }
+                                console.log(error)
+                                var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                                var body = new ApiBody([], [error])
                                 res.status(500).json(body)
-                                console.log(error);
                             } else if (results.length > 0) {
                                 var row = results[0]
-                                res.status(200).json({
-                                    data: {
-                                        id: row.id,
-                                        name: row.name,
-                                        details: row.details,
-                                        category: {
-                                            id: row.category_id,
-                                            name: row.category_name
-                                        },
-                                        info_stock: {
-                                            stock: row.stock,
-                                            stock_min: row.stock_min,
-                                            stock_max: row.stock_max
-                                        },
-                                        price: row.price
-                                    },
-                                    errors: []
-                                })
+                                var infoStock = new InfoStock(row.stock, row.stock_min, row.stock_max)
+                                var category = new Category(row.category_id, row.category_name)
+                                var product = new Product(row.id, row.name, row.details, category, infoStock, row.price)
+                                var body = new ApiBody(product)
+                                res.status(200).json(body)
                             } else {
-                                res.json({
-                                    data: [],
-                                    errors: []
-                                })
+                                var body = new ApiBody([], [])
+                                res.json(body)
                             }
                         }
                     )
@@ -213,15 +160,10 @@ function Products(connection, app) {
             `,
             function (error, results, fields) {
                 if (error) {
-                    var body = {
-                        data: [],
-                        errors: [{
-                            code: 500,
-                            message: "INTERNAL SERVER ERROR"
-                        }]
-                    }
+                    console.log(error)
+                    var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                    var body = new ApiBody([], [error])
                     res.status(500).json(body)
-                    console.log(error);
                 } else {
                     connection.query(
                         `
@@ -229,15 +171,10 @@ function Products(connection, app) {
                         `,
                         function (error, results, fields) {
                             if (error) {
-                                var body = {
-                                    data: [],
-                                    errors: [{
-                                        code: 500,
-                                        message: "INTERNAL SERVER ERROR"
-                                    }]
-                                }
+                                console.log(error)
+                                var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                                var body = new ApiBody([], [error])
                                 res.status(500).json(body)
-                                console.log(error);
                             } else {
                                 connection.query(
                                     `
@@ -245,15 +182,10 @@ function Products(connection, app) {
                                     `,
                                     function (error, results, fields) {
                                         if (error) {
-                                            var body = {
-                                                data: [],
-                                                errors: [{
-                                                    code: 500,
-                                                    message: "INTERNAL SERVER ERROR"
-                                                }]
-                                            }
+                                            console.log(error)
+                                            var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                                            var body = new ApiBody([], [error])
                                             res.status(500).json(body)
-                                            console.log(error);
                                         }
                                         res.status(204).end()
                                     }

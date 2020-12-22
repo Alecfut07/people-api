@@ -1,3 +1,7 @@
+const ApiBody = require("./models/api-body");
+const ApiError = require("./models/api-error");
+const Category = require("./models/category");
+
 function Categories(connection, app) {
     app.get('/categories', (req, res) => {
         connection.query(
@@ -6,28 +10,18 @@ function Categories(connection, app) {
             `,
             function (error, results, fields) {
                 if (error) {
-                    var body = {
-                        data: [],
-                        errors: [{
-                            code: 500,
-                            message: "INTERNAL SERVER ERROR"
-                        }]
-                    }
+                    console.log(error)
+                    var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                    var body = new ApiBody([], [error])
                     res.status(500).json(body)
-                    console.log(error);
                 } else {
                     var categories = [];
                     for (var row of results) {
-                        var category = {
-                            id: row.id,
-                            name: row.name
-                        }
+                        var category = new Category(row.id, row.name)
                         categories.push(category)
                     }
-                    res.json({
-                        data: categories,
-                        errors: []
-                    })
+                    var body = new ApiBody(categories)
+                    res.json(body)
                 }
             }
         );
@@ -41,30 +35,18 @@ function Categories(connection, app) {
             `,
             function (error, results, fields) {
                 if (error) {
-                    var body = {
-                        data: [],
-                        errors: [{
-                            code: 500,
-                            message: "INTERVAL SERVER ERROR"
-                        }]
-                    }
+                    console.log(error)
+                    var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                    var body = new ApiBody([], [error])
                     res.status(500).json(body)
-                    console.log(error);
                 } else if (results.length > 0) {
                     var row = results[0]
-                    var category = {
-                        id: row.id,
-                        name: row.name
-                    }
-                    res.json({
-                        data: category,
-                        errors: []
-                    })
+                    var category = new Category(row.id, row.name)
+                    var body = new ApiBody(category)
+                    res.json(body)
                 } else {
-                    res.json({
-                        data: [],
-                        errors: []
-                    })
+                    var body = new ApiBody([], [])
+                    res.json(body)
                 }
             }
         );
@@ -77,23 +59,15 @@ function Categories(connection, app) {
             `,
             function (error, results, fields) {
                 if (error) {
-                    var body = {
-                        data: [],
-                        errors: [{
-                            code: 500,
-                            message: "INTERNAL SERVER ERROR"
-                        }]
-                    }
+                    console.log(error)
+                    var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                    var body = new ApiBody([], [error])
                     res.status(500).json(body)
-                    console.log(error);
                 } else {
                     var row = req.body
-                    res.status(201).json({
-                        data: {
-                            name: row.name
-                        },
-                        errors: []
-                    })
+                    var category = new Category(row.id, row.name)
+                    var body = new ApiBody(category)
+                    res.status(201).json(body)
                 }
             }
         )
@@ -108,15 +82,10 @@ function Categories(connection, app) {
             `,
             function (error, results, fields) {
                 if (error) {
-                    var body = {
-                        data: [],
-                        errors: [{
-                            code: 500,
-                            message: "INTERNAL SERVER ERROR"
-                        }]
-                    }
+                    console.log(error)
+                    var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                    var body = new ApiBody([], [error])
                     res.status(500).json(body)
-                    console.log(error);
                 } else {
                     connection.query(
                         `
@@ -124,29 +93,18 @@ function Categories(connection, app) {
                         `,
                         function (error, results, fields) {
                             if (error) {
-                                var body = {
-                                    data: [],
-                                    errors: [{
-                                        code: 500,
-                                        message: "INTERNAL SERVER ERROR"
-                                    }]
-                                }
+                                console.log(error)
+                                var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                                var body = new ApiBody([], [error])
                                 res.status(500).json(body)
-                                console.log(error);
                             } else if (results.length > 0) {
                                 var row = results[0]
-                                res.status(200).json({
-                                    data: {
-                                        id: row.id,
-                                        name: row.name
-                                    },
-                                    errors: []
-                                })
+                                var category = new Category(row.id, row.name)
+                                var body = new ApiBody(category, [])
+                                res.status(200).json(body)
                             } else {
-                                res.json({
-                                    data: [],
-                                    errors: []
-                                })
+                                var body = new ApiBody([], [])
+                                res.json(body)
                             }
                         }
                     )
@@ -167,15 +125,10 @@ function Categories(connection, app) {
             `,
             function (error, results, fields) {
                 if (error) {
-                    var body = {
-                        data: [],
-                        errors: [{
-                            code: 500,
-                            message: "INTERNAL SERVER ERROR"
-                        }]
-                    }
+                    console.log(error)
+                    var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                    var body = new ApiBody([], [error])
                     res.status(500).json(body)
-                    console.log(error);
                 } else {
                     connection.query(
                         `
@@ -183,15 +136,10 @@ function Categories(connection, app) {
                         `,
                         function (error, results, fields) {
                             if (error) {
-                                var body = {
-                                    data: [],
-                                    errors: [{
-                                        code: 500,
-                                        message: "INTERNAL SERVER ERROR"
-                                    }]
-                                }
+                                console.log(error)
+                                var error = new ApiError(500, "INTERNAL SERVER ERROR")
+                                var body = new ApiBody([], [error])
                                 res.status(500).json(body)
-                                console.log(error);
                             }
                             res.status(204).end()
                         }
