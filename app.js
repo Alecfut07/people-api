@@ -1,21 +1,16 @@
+const dotenv = require('dotenv');
 const morgan = require('morgan');
-const mysql = require('mysql');
 const express = require('express');
 const bodyParser = require('body-parser');
+const database = require('./db/index');
 const peopleApp = require('./app/people');
 const productsApp = require('./app/products');
 const categoriesApp = require('./app/categories');
 
+dotenv.config();
+
 const app = express();
 const port = 3000;
-require('dotenv').config();
-
-const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-});
 
 app.use(morgan('dev'));
 
@@ -27,16 +22,19 @@ app.use(bodyParser.urlencoded({
 // parse application/json
 app.use(bodyParser.json());
 
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
-});
-
-connection.connect();
+database.connect()
+    .then(() => {
+        app.listen(port, () => {
+            console.log(`Example app listening at http://localhost:${port}`);
+        });
+    }).catch((err) => {
+        console.log(err);
+    });
 
 peopleApp(app);
 
-productsApp(connection, app);
+productsApp(database.getConnection(), app);
 
-categoriesApp(connection, app);
+categoriesApp(database.getConnection(), app);
 
 // connection.end();
