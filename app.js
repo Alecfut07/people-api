@@ -38,7 +38,7 @@ database.connect()
 
 peopleApp(app);
 
-productsApp(database.getConnection(), app);
+// productsApp(database.getConnection(), app);
 
 // categoriesApp(database.getConnection(), app);
 
