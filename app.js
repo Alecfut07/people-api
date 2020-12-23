@@ -4,8 +4,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const database = require('./db/index');
 const peopleApp = require('./app/people');
-const productsApp = require('./app/products');
-const categoriesApp = require('./app/categories');
+const productsApp = require('./app/controllers/products');
+const categoriesApp = require('./app/controllers/categories');
+const routes = require('./routes');
 
 dotenv.config();
 
@@ -22,6 +23,10 @@ app.use(bodyParser.urlencoded({
 // parse application/json
 app.use(bodyParser.json());
 
+Object.keys(routes).forEach((path) => {
+    app.use(path, routes[path]);
+});
+
 database.connect()
     .then(() => {
         app.listen(port, () => {
@@ -35,6 +40,6 @@ peopleApp(app);
 
 productsApp(database.getConnection(), app);
 
-categoriesApp(database.getConnection(), app);
+// categoriesApp(database.getConnection(), app);
 
 // connection.end();

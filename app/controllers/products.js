@@ -1,8 +1,8 @@
-const ApiError = require('./models/api-error');
-const ApiBody = require('./models/api-body');
-const Category = require('./models/category');
-const InfoStock = require('./models/info-stock');
-const Product = require('./models/product');
+const ApiError = require('../models/api-error');
+const ApiBody = require('../models/api-body');
+const Category = require('../models/category');
+const InfoStock = require('../models/info-stock');
+const Product = require('../models/product');
 
 function Products(connection, app) {
     function getProducts() {
