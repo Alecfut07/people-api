@@ -133,6 +133,18 @@ function Products(connection, app) {
         });
     }
 
+    function isProductNameValid(name) {
+        return name && name.length > 0;
+    }
+
+    function isProductDetailsValid(details) {
+        return details && details.length > 0;
+    }
+
+    function isProductValid(product) {
+        return isProductNameValid(product.name) && isProductDetailsValid(product.details);
+    }
+
     app.get('/products', (req, res) => {
         getProducts()
             .then((results) => {
@@ -177,18 +189,6 @@ function Products(connection, app) {
                 res.status(500).json(body);
             });
     });
-
-    function isProductNameValid(name) {
-        return name && name.length > 0;
-    }
-
-    function isProductDetailsValid(details) {
-        return details && details.length > 0;
-    }
-
-    function isProductValid(product) {
-        return isProductNameValid(product.name) && isProductDetailsValid(product.details);
-    }
 
     app.post('/products', (req, res) => {
         const productToInsert = req.body;
