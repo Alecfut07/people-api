@@ -103,11 +103,11 @@ function Products(connection, app) {
                     if (err) {
                         reject(err);
                     } else {
-                        // const category = new Category(results.category_id, results.category_name);
-                        // const infoStock = new InfoStock(results.stock, results.stock_min, results.stock_max);
-                        resolve(new Product(results.insertId, results.name, results.details, 
-                            new Category(results.category_id, results.category_name),
-                            new InfoStock(results.stock, results.stock_min, results.stock_max), results.price));
+                        const category = new Category(results.category_id, results.category_name);
+                        const infoStock = new InfoStock(results.stock, results.stock_min, results.stock_max);
+                        const product = new Product(
+                            results.insertId, results.name, results.details, category, infoStock, results.price);
+                        resolve(product);
                     }
                 },
             );
