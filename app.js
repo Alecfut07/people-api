@@ -4,14 +4,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const database = require('./db/index');
 const peopleApp = require('./app/people');
-const productsApp = require('./app/controllers/products');
-const categoriesApp = require('./app/controllers/categories');
 const routes = require('./routes');
 
 dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 app.use(morgan('dev'));
 
@@ -37,9 +35,3 @@ database.connect()
     });
 
 peopleApp(app);
-
-// productsApp(database.getConnection(), app);
-
-// categoriesApp(database.getConnection(), app);
-
-// connection.end();
