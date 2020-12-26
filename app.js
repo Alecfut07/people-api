@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
-const morgan = require('morgan');
 const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const database = require('./db/index');
 const peopleApp = require('./app/people');
@@ -12,6 +13,7 @@ const app = express();
 const port = 3001;
 
 app.use(morgan('dev'));
+app.use(cors());
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({
