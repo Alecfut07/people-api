@@ -1,14 +1,15 @@
-const Category = require('../models/category');
-const InfoStock = require('../models/info-stock');
-const Product = require('../models/product');
+const District = require('../models/district');
+const Employee = require('../models/employee');
+const User = require('../models/user');
 const database = require('../../db');
 
-function getProducts() {
+function getUsers() {
     return new Promise((resolve, reject) => {
         database.getConnection().query(
             `
-            SELECT p.*, c.id as category_id, c.name as category_name
-            FROM products p INNER JOIN categories c ON p.category_id = c.id
+            SELECT u.*, e.id as employee_id, e.type, e.salary, d.name, d.address
+            FROM users u INNER JOIN employees e ON u.employee_id = e.id 
+                         INNER JOIN districts d ON u.district_id = d.id;
             `, (err, results) => {
                 if (err) {
                     reject(err);
@@ -20,13 +21,12 @@ function getProducts() {
     });
 }
 
-function updateProductById(id, product) {
+function updateUserById(id, user) {
     return new Promise((resolve, reject) => {
         database.getConnection().query(
             `
-            UPDATE products
-            SET name = '${product.name}', details = '${product.details}', category_id = ${product.category_id}, 
-            price = '${product.price}'
+            UPDATE users
+            SET username = '${user.username}', password = '${user.password}'
             WHERE id = ${id}
             `, (err) => {
                 if (err) {
@@ -39,30 +39,29 @@ function updateProductById(id, product) {
     });
 }
 
-function insertProduct(product) {
+function insertUser(user) {
     return new Promise((resolve, reject) => {
         database.getConnection().query(
             `
-            INSERT INTO products(name, details, stock, category_id, price, stock_max, stock_min)
-            VALUES ('${product.name}', '${product.details}', ${product.stock}, 
-            ${product.category_id}, ${product.price}, ${product.stock_max}, ${product.stock_min})
+            INSERT INTO users(employee_id, district_id, username, password)
+            VALUES (${user.employee_id}, ${user.district_id}, '${user.username}', '${user.password}')
             `, (err, results) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(new Product(results.insertId, product.name));
+                    resolve(new User(results.insertId, user.username));
                 }
             },
         );
     });
 }
 
-function deletePriceHistory(id) {
+function deleteEmployee(id) {
     return new Promise((resolve, reject) => {
         database.getConnection().query(
             `
-            DELETE FROM price_history 
-            WHERE product_id = ${id}
+            DELETE FROM employees 
+            WHERE id = ${id}
             `, (err) => {
                 if (err) {
                     reject(err);
@@ -74,12 +73,12 @@ function deletePriceHistory(id) {
     });
 }
 
-function deleteOrder(id) {
+function deleteDistrict(id) {
     return new Promise((resolve, reject) => {
         database.getConnection().query(
             `
-            DELETE FROM orders 
-            WHERE product_id = ${id}
+            DELETE FROM districts 
+            WHERE id = ${id}
             `, (err) => {
                 if (err) {
                     reject(err);
@@ -91,34 +90,35 @@ function deleteOrder(id) {
     });
 }
 
-function deleteProductById(id) {
+function deleteUserById(id) {
     return new Promise((resolve, reject) => {
         database.getConnection().query(
             `
-            DELETE FROM products 
+            DELETE FROM users 
             WHERE id = ${id}
             `, (err, results) => {
                 if (err) {
                     reject(err);
                 } else {
-                    const category = new Category(results.category_id, results.category_name);
-                    const infoStock = new InfoStock(results.stock, results.stock_min, results.stock_max);
-                    const product = new Product(results.insertId, results.name, results.details, category,
-                        infoStock, results.price);
-                    resolve(product);
+                    const employee = new Employee(results.employee_id, results.address_id, results.type, results.name,
+                        results.age, results.cellphone, results.birthdate, results.email, results.salary);
+                    const district = new District(results.district_id, results.name, results.phoneNumber,
+                        results.address, results.email);
+                    const user = new User(results.insertId, employee, district, results.username, results.password);
+                    resolve(user);
                 }
             },
         );
     });
 }
 
-function getProductById(id) {
+function getUserById(id) {
     return new Promise((resolve, reject) => {
         database.getConnection().query(
             `
-            SELECT p.*, c.id as category_id, c.name as category_name
-            FROM products p INNER JOIN categories c ON p.category_id = c.id
-            WHERE p.id = ${id}
+            SELECT id, username, password
+            FROM users
+            WHERE id = ${id}
             `,
             (err, results) => {
                 if (err) {
@@ -132,11 +132,11 @@ function getProductById(id) {
 }
 
 module.exports = {
-    getProducts,
-    updateProductById,
-    insertProduct,
-    deletePriceHistory,
-    deleteOrder,
-    deleteProductById,
-    getProductById,
+    getUsers,
+    updateUserById,
+    insertUser,
+    deleteEmployee,
+    deleteDistrict,
+    deleteUserById,
+    getUserById,
 };
