@@ -1,4 +1,3 @@
-const { Router } = require('express');
 const express = require('express');
 const categoriesController = require('../app/controllers/categories');
 const productsController = require('../app/controllers/products');
@@ -6,6 +5,7 @@ const addressesController = require('../app/controllers/addresses');
 const districtsController = require('../app/controllers/districts');
 const employeesController = require('../app/controllers/employees');
 const usersController = require('../app/controllers/users');
+const authController = require('../app/controllers/auth');
 
 const categoriesRouter = express.Router();
 const productsRouter = express.Router();
@@ -13,6 +13,7 @@ const addressesRouter = express.Router();
 const districtsRouter = express.Router();
 const employeesRouter = express.Router();
 const usersRouter = express.Router();
+const authRouter = express.Router();
 
 categoriesRouter
     .get('/', (req, res) => categoriesController.getCategories(req, res))
@@ -55,11 +56,16 @@ usersRouter
     .post('/', (req, res) => usersController.insertUser(req, res))
     .put('/:id', (req, res) => usersController.updateUserById(req, res))
     .delete('/:id', (req, res) => usersController.deleteUserById(req, res));
+
+authRouter
+    .post('/sign_in', (req, res) => authController.getUserByUsernameAndPassword(req, res));
+
 module.exports = {
     '/categories': categoriesRouter,
     '/products': productsRouter,
     '/addresses': addressesRouter,
     '/districts': districtsRouter,
     '/employees': employeesRouter,
-    '/auth': usersRouter,
+    '/users': usersRouter,
+    '/auth': authRouter,
 };

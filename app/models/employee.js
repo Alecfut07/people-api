@@ -1,6 +1,6 @@
 class Employee {
-    constructor(id, district, address, type, name, age, cellphone, birthdate, email, salary) {
-        this.id = id;
+    constructor(user, district, address, type, name, age, cellphone, birthdate, email, salary) {
+        this.user = user;
         this.district = district;
         this.address = address;
         this.type = type;

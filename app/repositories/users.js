@@ -8,8 +8,7 @@ function getUsers() {
         database.getConnection().query(
             `
             SELECT u.*, e.id as employee_id, e.type, e.salary, d.name, d.address
-            FROM users u INNER JOIN employees e ON u.employee_id = e.id 
-                         INNER JOIN districts d ON u.district_id = d.id;
+            FROM users u INNER JOIN districts d ON u.district_id = d.id;
             `, (err, results) => {
                 if (err) {
                     reject(err);
